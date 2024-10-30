@@ -1,0 +1,21 @@
+{% extends 'starwars/base.html' %}
+{% block content %}
+    <h2>Took time: {{ took_time }}</h2>
+    <div class="row">
+        <div class="col m-3">
+            {% for person in people %}
+            	<div class="card p-3">{{ person.name }}</div>
+            {% endfor %}
+        </div>
+        <div class="col m-3">
+            {% for planet in planets %}
+            	<div class="card p-3">{{ planet.name }}</div>
+            {% endfor %}
+        </div>
+        <div class="col m-3">
+            {% for starship in starships %}
+            	<div class="card p-3">{{ starship.name }}</div>
+            {% endfor %}
+        </div>
+    </div>
+{% endblock %}
