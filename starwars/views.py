@@ -37,25 +37,25 @@ def starwars_sync_view(request: HttpRequest) -> HttpResponse:
 
 
 async def starwars_async_view(request: HttpRequest) -> HttpResponse:
-    urls = [f'{STARWARS_API_URL}/{endpoint}' for endpoint in ENDPOINTS]
+    people_urls = [f'{STARWARS_API_URL}/people/{idx}' for idx in range(1, 11)]
+    starship_urls = [f'{STARWARS_API_URL}/starships/{idx}' for idx in range(1, 11)]
+    planet_urls = [f'{STARWARS_API_URL}/planets/{idx}' for idx in range(1, 11)]
+    url_lists = [people_urls, starship_urls, planet_urls]
 
-    tasks = []
+    data = []
     # Async (concurrent) I/O bound code
     start_time = time.time()
     async with httpx.AsyncClient() as client:
-        for url in urls:
-            task = asyncio.create_task(fetch_async_url(client, url))
-            tasks.append(task)
-        data = await asyncio.gather(*tasks)
+        for url_list in url_lists:
+            task_group = []
+            for url in url_list:
+                task = asyncio.create_task(fetch_async_url(client, url))
+                task_group.append(task)
+            results_group = await asyncio.gather(*task_group)
+            data.append(results_group)
 
     took_time = time.time() - start_time
 
-    # Processing of already loaded data
-    results = []
-    for chunk in data:
-        result = chunk['results']
-        results.append(result)
-
-    people, starships, planets = results
+    people, starships, planets = data
     context = {'people': people, 'starships': starships, 'planets': planets, 'took_time': took_time}
     return render(request, 'starwars/list.html', context)
