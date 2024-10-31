@@ -10,7 +10,7 @@ from .fetch import fetch_url, fetch_async_url
 # Create your views here.
 
 STARWARS_API_URL = 'https://swapi.dev/api'
-ENDPOINTS = ['people', 'starships', 'planets']
+# ENDPOINTS = ['people', 'starships', 'planets']
 
 
 def starwars_sync_view(request: HttpRequest) -> HttpResponse:
@@ -21,7 +21,7 @@ def starwars_sync_view(request: HttpRequest) -> HttpResponse:
 
     data = []
     start_time = time.time()
-    # I/O bound code
+    # I/O bound code START
     with httpx.Client() as client:
         for url_list in url_lists:
             entities = []
@@ -29,6 +29,7 @@ def starwars_sync_view(request: HttpRequest) -> HttpResponse:
                 endpoint_data = fetch_url(client, url)
                 entities.append(endpoint_data)
             data.append(entities)
+    # I/O bound code END
 
     took_time = time.time() - start_time
     people, starships, planets = data
@@ -43,8 +44,8 @@ async def starwars_async_view(request: HttpRequest) -> HttpResponse:
     url_lists = [people_urls, starship_urls, planet_urls]
 
     data = []
-    # Async (concurrent) I/O bound code
     start_time = time.time()
+    # Async (concurrent) I/O bound code START
     async with httpx.AsyncClient() as client:
         for url_list in url_lists:
             task_group = []
@@ -53,6 +54,7 @@ async def starwars_async_view(request: HttpRequest) -> HttpResponse:
                 task_group.append(task)
             results_group = await asyncio.gather(*task_group)
             data.append(results_group)
+    # Async (concurrent) I/O bound code END
 
     took_time = time.time() - start_time
 
